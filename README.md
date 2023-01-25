@@ -4,7 +4,7 @@
 
 There are a few options for getting RASSP inference results on small molecules of your choice:
 - Web API
-    - We've setup a web API that runs FormulaNet/SubsetNet inferences on molecules at [spectroscopy.ai](spectroscopy.ai).
+    - We've setup a web API that runs FormulaNet/SubsetNet inferences on molecules at [spectroscopy.ai](https://www.spectroscopy.ai).
     - You can run inference on mols <= 48 atoms (for FormulaNet) and <= 64 atoms (for SubsetNet).
 - Install RASSP locally.
 - Build your own Docker image (TBD).
