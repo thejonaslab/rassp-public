@@ -1,0 +1,132 @@
+cluster_config:
+  data_dir: sample_data
+  checkpoint_dir: checkpoints
+  using_cluster: False
+
+exp_data:
+  # TODO: change this to a 100-mol subsample of smallmols w randomly generated spectra
+  data : 
+    - db_filename: smallmols_cfm_pred_public_sample.parquet
+      phase: train
+      filter_max_mass: 511
+      filter_max_unique_formulae: 4096
+      filter_max_n: 48 
+
+    - db_filename: smallmols_cfm_pred_public_sample.parquet
+      phase: test
+      filter_max_mass: 511
+      filter_max_unique_formulae: 4096
+      filter_max_n: 48 
+      
+  cv_split :
+    how: morgan_fingerprint_mod
+    mod: 10
+    test: [0, 1]
+
+tblogdir: tblogs.formulae
+checkpoint_every_n_epochs: 50
+
+DATALOADER_NUM_WORKERS: 32
+validate_every: 10
+
+pred_config:
+  foo: bar
+
+validate_config:
+  kl_validate:
+    - field: null
+  dotprod_validate:
+    exp_pred : False
+    exp_true : False
+  metadata:
+    - field : null
+
+net_name: formulaenets.GraphVertSpect
+
+bin_config:
+  first_bin_center: 1.0
+  bin_width: 1.0
+  bin_number: 512
+
+net_params:
+  init_noise : 0.01
+  init_bias: 0.0
+  resnet : True
+  int_d : 512
+  layer_n : 16
+  agg_func: goodmax
+  gml_class: GraphMatLayersNormAfterRes
+  gml_config:
+    layer_class: GraphMatLayerFast3
+    layer_config:
+      dropout: 0.0
+      nonlin: leakyrelu
+      swap_init: False
+  g_feature_n : -1 
+  inner_norm : layer
+  input_norm : batch
+  spect_out_class : MolAttentionGRU
+  spect_out_config:
+    formula_oh_sizes: [50, 46, 30, 30, 30, 30, 30, 30]
+    formula_oh_accum: True
+
+    internal_d: 128
+    embedding_key_size: 8
+
+    gru_layer_n: 3
+    linear_layer_n: 9
+
+automatic_mixed_precision: False
+epoch_size: 1
+
+# 12GB GPU mem
+batch_size: 6
+accumulate_steps: 4
+
+tgt_max_n: 48
+
+opt_params:
+  optimizer: adam 
+  lr: 2.0e-4
+
+seed: 1234
+
+featurize_config:
+  MAX_N: 48
+  feat_vert_args:
+    feat_atomicno: True
+    total_h_oh : True
+    partial_charge: False
+    mmff_atom_types_onehot: False
+  adj_args:
+    add_identity: False
+    norm_adj: False
+    edge_bin : False
+  mol_args:
+    atom_type_counts : True
+
+  spect_input_sparse: True
+  element_oh:  [1, 6, 7, 8, 9, 15, 16, 17]
+
+  vert_subset_samples_n: 12288
+
+  subset_gen_config:
+    name: BandR
+    num_breaks: 3
+    
+  explicit_formulae_config:
+    enumerator_type : multipeak
+    formula_possible_atomicno: [1, 6, 7, 8, 9, 15, 16, 17]
+    featurize_mode: numerical
+    use_highres: True
+    num_peaks_per_formula: 12
+    max_formulae: 4096
+    clip_mass: 511
+
+loss_params:
+  loss_name : losses.CustomWeightedMSELoss
+  func: l2
+  mass_scale: 0.0
+  intensity_pow: 0.5
+
+max_epochs: 1

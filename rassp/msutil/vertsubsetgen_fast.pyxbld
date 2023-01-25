@@ -1,0 +1,8 @@
+import numpy
+
+def make_ext(modname, pyxfilename):
+    from distutils.extension import Extension
+    return Extension(name=modname,
+                     sources=[pyxfilename],
+                     include_dirs=[numpy.get_include()], 
+                     extra_compile_args=[ '-march=native', '-g', '-O3'])
